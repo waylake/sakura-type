@@ -1,7 +1,9 @@
 {
-  "name": "typing-site",
+  "name": "sakura-type",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Typing practice site using Japanese cherry blossom poems. Improve your typing skills with beautiful haiku and tanka about sakura.",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +11,27 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/waylake/sakura-type.git"
+  },
+  "keywords": [
+    "typing practice",
+    "cherry blossoms",
+    "Japanese poems",
+    "haiku",
+    "tanka",
+    "sakura",
+    "typing game",
+    "improve typing speed",
+    "typing accuracy"
+  ],
+  "author": "waylake",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/waylake/sakura-type/issues"
+  },
+  "homepage": "https://sakura-type.vercel.app/",
   "dependencies": {
     "an-array-of-english-words": "^2.0.0",
     "react": "^18.3.1",
