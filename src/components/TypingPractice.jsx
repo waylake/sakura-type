@@ -6,23 +6,34 @@ import React, {
   useMemo,
 } from "react";
 import Sakura from "./Sakura";
-import ThemeToggle from "./ThemeToggle"; // ThemeToggle 컴포넌트 가져오기
+import ThemeToggle from "./ThemeToggle";
+import Modal from "./Modal";
 
 const cherryBlossomPoems = [
   {
-    title: "Springtime Blossoms",
+    title: "Spring's Whisper",
     content:
-      "In the gentle spring breeze, the cherry blossoms dance, painting the sky pink, a fleeting romance.",
+      "Cherry blossoms dance in the spring breeze, singing the beauty of a fleeting moment.",
   },
   {
-    title: "Petals in the Wind",
+    title: "Dance of Petals",
     content:
-      "Petals fall like whispers, soft and serene, a moment of beauty, a delicate dream.",
+      "Delicate petals falling gently, nature's ballerinas twirling with the wind.",
   },
   {
-    title: "Blossom's Embrace",
+    title: "Cherry Blossom Embrace",
     content:
-      "Under the cherry tree, we share a laugh, as blossoms shower down, nature's sweet photograph.",
+      "Sharing smiles under the cherry tree, dreaming of eternity in a shower of blossoms.",
+  },
+  {
+    title: "Ephemeral Beauty",
+    content:
+      "Cherry blossoms capture a moment's beauty, eternal charm in their brief existence.",
+  },
+  {
+    title: "Spring's Message",
+    content:
+      "Cherry blossom scent on the gentle breeze, nature's letter heralding the change of seasons.",
   },
 ];
 
@@ -35,6 +46,8 @@ const TypingPractice = () => {
   const [isActive, setIsActive] = useState(false);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState("");
   const textareaRef = useRef(null);
 
   const startGame = useCallback(() => {
@@ -67,8 +80,8 @@ const TypingPractice = () => {
         setHighScore(score);
         localStorage.setItem("highScore", score);
       }
-      alert("Typing practice has ended.");
-      window.close(); // 프로그램 종료
+      setModalContent("Typing practice has ended!");
+      setShowModal(true);
     }
     return () => clearInterval(timer);
   }, [isActive, timeLeft, score, highScore]);
@@ -94,8 +107,8 @@ const TypingPractice = () => {
   useEffect(() => {
     if (isActive && typedText.length === currentText.length) {
       setIsActive(false);
-      alert("You have completed the typing practice!");
-      window.close(); // 프로그램 종료
+      setModalContent("You've completed the typing practice!");
+      setShowModal(true);
     }
   }, [typedText, currentText, isActive]);
 
@@ -108,6 +121,32 @@ const TypingPractice = () => {
     },
     [isActive],
   );
+
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.ctrlKey && e.key === "Enter") {
+        e.preventDefault();
+        startGame();
+      }
+      if (e.key === "Escape") {
+        if (isActive) {
+          setIsActive(false);
+          setModalContent("Game has been stopped.");
+          setShowModal(true);
+        } else if (showModal) {
+          setShowModal(false);
+        }
+      }
+    },
+    [isActive, startGame, showModal],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   const renderWords = useMemo(() => {
     return currentText.split("").map((char, index) => {
@@ -135,7 +174,7 @@ const TypingPractice = () => {
 
       <div className="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="w-full max-w-3xl">
-          <div className="bg-white bg-opacity-70 dark:bg-gray-800 dark:bg-opacity-70 shadow-lg rounded-lg overflow-hidden backdrop-filter backdrop-blur-lg">
+          <div className="bg-white bg-opacity-30 dark:bg-gray-800 dark:bg-opacity-30 shadow-lg rounded-lg overflow-hidden backdrop-filter backdrop-blur-md">
             <div className="p-6">
               <h1 className="text-3xl font-bold text-center text-pink-600 dark:text-pink-400 mb-4">
                 Cherry Blossom Typing Practice
@@ -180,21 +219,31 @@ const TypingPractice = () => {
                   style={{ width: `${(timeLeft / 60) * 100}%` }}
                 ></div>
               </div>
-              <div className="relative mb-4 bg-white bg-opacity-50 dark:bg-gray-700 dark:bg-opacity-50 rounded-lg p-3 overflow-hidden backdrop-filter backdrop-blur-md">
-                <div className="absolute inset-0 text-lg leading-relaxed p-3 font-mono whitespace-pre-wrap break-all">
+              <div className="relative mb-4 rounded-lg overflow-hidden">
+                <div
+                  className="absolute inset-0 font-mono whitespace-pre-wrap break-all pointer-events-none"
+                  style={{
+                    fontSize: "1rem",
+                    lineHeight: "1.5",
+                    padding: "0.75rem",
+                  }}
+                >
                   {renderWords}
                 </div>
                 <textarea
                   ref={textareaRef}
                   value={typedText}
                   onChange={handleInput}
-                  className="w-full h-40 bg-transparent rounded-md focus:outline-none resize-none font-mono text-lg leading-relaxed text-transparent caret-pink-500 relative z-10"
+                  onKeyDown={handleKeyDown}
+                  className="w-full h-40 bg-transparent rounded-md focus:outline-none resize-none font-mono relative z-10 backdrop-filter backdrop-blur-sm"
                   placeholder={isActive ? "" : "Start typing here..."}
                   disabled={!isActive}
                   style={{
-                    WebkitTextFillColor: "transparent",
+                    fontSize: "1rem",
+                    lineHeight: "1.5",
+                    padding: "0.75rem",
+                    color: "transparent",
                     caretColor: "#EC4899",
-                    backdropFilter: "blur(10px)",
                   }}
                 />
               </div>
@@ -203,15 +252,23 @@ const TypingPractice = () => {
                 className="px-6 py-3 bg-pink-600 text-white rounded-md font-semibold hover:bg-pink-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
                 disabled={isActive}
               >
-                {isActive ? "In Progress" : "Start"}
+                {isActive ? "In Progress" : "Start (Ctrl + Enter)"}
               </button>
-              <p className="text-center text-gray-500 dark:text-gray-400 mt-4">
-                Type as fast as you can and improve your typing skills!
+              <p className="text-center text-gray-700 dark:text-gray-300 mt-4">
+                Type as fast as you can to improve your typing skills! (Stop:
+                Esc)
               </p>
             </div>
           </div>
         </div>
       </div>
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+        <h2 className="text-xl font-bold mb-4">Notification</h2>
+        <p>{modalContent}</p>
+        <p className="mt-4 text-sm text-gray-500">
+          Press ESC to close this modal
+        </p>
+      </Modal>
     </div>
   );
 };
