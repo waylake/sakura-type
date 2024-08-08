@@ -5,4 +5,5 @@ export default {
     extend: {},
   },
   plugins: [],
+  darkMode: "class", // 다크 모드를 class 기반으로 설정
 };
